@@ -1,0 +1,79 @@
+{%extends 'app/base.html'%}
+{% block css %}
+.news{
+    height:100%;
+    width:100%;
+    margin:20px;
+    border:2px solid black;
+    padding:20px;
+}
+.head{
+    font-size:20px;
+    display:inline;
+}
+.searchbox{
+    margin-left:30px;
+    margin:20px ;
+}
+{% endblock %}
+{% block main-content %}
+<div class="searchbox">
+   <p class="head"> Enter Product Id Here: </p> <input type="text" id="search"> <button id="searchbtn">search</button>
+</div>
+<div class="container" id="container">
+
+</div>
+ {% endblock main-content %}
+ {%block js%}
+ 
+let btn=document.getElementById('searchbtn')
+let pid=document.getElementById('search')
+btn.addEventListener('click',function(){
+    displaydetails();
+})
+
+function displaydetails(){
+let id=pid.value
+let p=fetch(`http://www.pricetree.com/dev/api.ashx?pricetreeId=${id}&apikey=7770AD31-382F-4D32-8C36-3743C0271699`)
+let arr=[]
+p.then((response)=>{
+    return response.json();
+
+}).then((response)=>{
+    arr=response.data
+   console.log(arr)
+   display(arr);
+})
+
+function display( arr){
+    let container=document.getElementById('container')
+    if(arr.length==0){
+        container.innerHTML="Sorry No data found at this time"
+    }
+    arr.forEach((element)=>{
+        let news=document.createElement('div')
+        news.setAttribute('class','news')
+        let heading=document.createElement('h5');
+        heading.setAttribute('class','heading')
+        heading.innerHTML=element.Product_Name;
+        news.appendChild(heading)
+        
+        let content=document.createElement('p')
+        content.setAttribute('class','content')
+        content.innerHTML=`Price: <b> ${element.Best_Price} </b>
+                            <br>Seller Name : ${element.Seller_Name}`;
+        
+        let link=document.createElement('a')
+        link.setAttribute('class','link')
+        link.setAttribute('href',`${element.Uri}`)
+        link.setAttribute('target','_blank')
+        link.innerHTML="Link To Purchase"
+
+        news.appendChild(content)
+        news.appendChild(link)
+    
+        container.appendChild(news)
+    })
+    }
+}
+ {%endblock%}
